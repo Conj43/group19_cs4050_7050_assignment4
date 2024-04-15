@@ -12,7 +12,12 @@ public class Node {
     public int getKey() {
         return key;
     }
+
     public int getId() {
         return id;
+    }
+
+    public void setKey(int key) {
+        this.key = key;
     }
 }
