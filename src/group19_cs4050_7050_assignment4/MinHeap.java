@@ -145,8 +145,12 @@ public class MinHeap {
         for (int i = 1; i <= size; i++) {
             System.out.println("ID: " + heap[i].getId() + ", Key: " + heap[i].getKey());
         }
-    }
 
+    }
+    public int heapSize()
+    {
+        return size;
+    }
 
 
 }
