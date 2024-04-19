@@ -45,7 +45,18 @@ public class Main {
         if (g == null) {
             System.out.println("Graph is null");
         }
-        else g.printGraph();
+        else {
+            g.printGraph();
+            List<Edge> mst = g.primMST(g);
+            if (mst == null) {
+                System.out.println("MST is null");
+            }
+            else g.printMST(mst);
+        }
+
+
+
+
 
 
 

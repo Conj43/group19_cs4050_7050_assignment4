@@ -29,6 +29,7 @@ public class Graph {
             addVertex(destination);
         }
         neighbors.get(current).add(new Edge(current, destination, weight));
+        neighbors.get(destination).add(new Edge(destination, current, weight));
     }
 
     public void printGraph() {
@@ -47,21 +48,39 @@ public class Graph {
     public int getSize(){
         return size;
     }
-    public List<Edge> primMST()
+
+    public List<Edge> primMST(Graph graph)
     {
+
         MinHeap heap = new MinHeap(); //creates the heap
-        heap.heap_ini(new int[getSize()],getSize()); //inits it with keys
+
+        double[] keys = new double[graph.getSize()];
+        int[] ids = new int[graph.getSize()];
+
+        int i = 0;
+        for (Map.Entry<Integer, List<Edge>> entry : neighbors.entrySet()) {
+            int vertex = entry.getKey();
+            ids[i] = vertex;
+            keys[i] = Double.MAX_VALUE;
+            i++;
+        }
+
+
+        heap.heap_ini(keys, ids, graph.getSize()); //inits it with keys
+//        heap.printHeap();
+
         List<Edge> mst = new ArrayList<>(); //inits the MST
 
-        boolean[] visited = new boolean[getSize()+1]; //array to track vertices that have been visited
+        boolean[] visited = new boolean[graph.getSize()+1]; //array to track vertices that have been visited
         heap.decrease_key(1,0); //inits the key of source vertex
 
         //performs prims algorithm until the heap is empty
         while(heap.heapSize() != 0)
         {
-            Element minElement = heap.getElementByID(heap.min_id()); //get min element from the heap
+
+            Node minNode = heap.getNodeById(heap.min_id()); //get min element from the heap
             heap.delete_min(); //deletes the min
-            int u = minElement.id; //id of current vertex
+            int u = minNode.getId(); //id of current vertex
 
             if(visited[u]) //if the vertex has already been visited, skip further processing
             {
@@ -69,23 +88,38 @@ public class Graph {
             }
 
             visited[u] = true; //mark vertex as visited
-            //adds the edge to the MST if its not the source
-            if(minElement.key != 0)
-            {
-                mst.add(new Edge(minElement.id, minElement.key, heap.key(u)));
-            }
+            double smallest = Double.MAX_VALUE;
+            int ver = 0;
+            int to = 0;
 
-            //updates the keys of adjacent neighbors
-            for(Edge neighbor : neighbors.get(u))
-            {
-                if (!visited[neighbor.j] && neighbor.w < heap.key(neighbor.j))
-                {
-                    heap.decrease_key(neighbor.j, (int) neighbor.w);
+            for (Edge edge : graph.neighbors.get(u)) {
+                int v = edge.j;
+                if (!visited[v] && edge.w < heap.key(v)) {
+
+                    mst.add(new Edge(u, v, edge.w));
+                    heap.decrease_key(v,  edge.w);
                 }
             }
+
+
 
         }
         return mst;
     }
+
+
+
+    public void printMST(List<Edge> mst) {
+        System.out.println("Minimum Spanning Tree (MST):");
+        double totalWeight = 0;
+
+        for (Edge edge : mst) {
+            System.out.println("Vertex " + edge.i + " -- Vertex " + edge.j + " : Weight = " + edge.w);
+            totalWeight += edge.w;
+        }
+
+        System.out.println("Total Weight of MST: " + totalWeight);
+    }
+
 
 }
