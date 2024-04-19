@@ -1,124 +1,112 @@
 package group19_cs4050_7050_assignment4;
 
+import java.util.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Graph {
+    private Map<Integer, List<Edge>> adjacencyList;
 
-    private int size = 0;
-
-    private Map<Integer, List<Edge>> neighbors;
     public Graph() {
-        this.neighbors = new HashMap<>();
+        this.adjacencyList = new HashMap<>(); //initialize as a new has map
     }
 
-    private void addVertex(int v) {
-        if(!neighbors.containsKey(v)) {
-            neighbors.put(v, new ArrayList<>());
-            size++;
+    public void addVertex(int vertex) { //adds vertex to the graph
+        if (!adjacencyList.containsKey(vertex)) {
+            adjacencyList.put(vertex, new ArrayList<>()); //make sure not already added, and if not create it with a new array list, which holds edges adjacent
         }
     }
+    //adds edge to graph
+    public void addEdge(int i, int j, double weight) {
+        if (!adjacencyList.containsKey(i)) { //check if vertex is already in the graph
+            addVertex(i); //if not, add it
+        }
+        if (!adjacencyList.containsKey(j)) { //check if vertex is already in the graph
+            addVertex(j); //if not, add it
+        }
 
-    public void addEdge(int current, int destination, double weight) {
-        if(!neighbors.containsKey(current)) {
-            addVertex(current);
-        }
-        if(!neighbors.containsKey(destination)) {
-            addVertex(destination);
-        }
-        neighbors.get(current).add(new Edge(current, destination, weight));
-        neighbors.get(destination).add(new Edge(destination, current, weight));
+        Edge edgeIJ = new Edge(i, j, weight); //create edge, going both ways because it is not directed
+        Edge edgeJI = new Edge(j, i, weight);
+
+        adjacencyList.get(i).add(edgeIJ); //add both to the adjacent list of their respective vertices
+        adjacencyList.get(j).add(edgeJI);
     }
 
+    public List<Edge> getAdjacentEdges(int vertex) {
+        return adjacencyList.getOrDefault(vertex, new ArrayList<>()); //returns edges adjacent to given vertex
+    }
+
+
+
+    //method to nicely print graph
     public void printGraph() {
-        for (Map.Entry<Integer, List<Edge>> entry : neighbors.entrySet()) {
+        for (Map.Entry<Integer, List<Edge>> entry : adjacencyList.entrySet()) { //get adjacency list for each vertex
             int vertex = entry.getKey();
             List<Edge> edges = entry.getValue();
 
-            System.out.print("Vertex " + vertex + " is connected to: ");
+            System.out.print("Vertex " + vertex + " is connected to: "); //print out the vertex, what is connected to and the corresponding weight
             for (Edge edge : edges) {
-                System.out.print(edge.j + "(" + edge.w + ") ");
+                System.out.print(edge.j + "(" + edge.weight + ") "); //looks like 'Vertex 1 is connected to: 2(weight) 10(weight)' this is just an example where weight would be a double
             }
             System.out.println();
         }
     }
 
-    public int getSize(){
-        return size;
-    }
+    //method uses prims algorithm to build mst (we used a list of edges)
+    public List<Edge> primMST(Graph graph) {
+        List<Edge> mstEdges = new ArrayList<>(); // list to keep track of order
+        MinHeap heap = new MinHeap(); // initialize empty heap
 
-    public List<Edge> primMST(Graph graph)
-    {
+        Set<Integer> visited = new HashSet<>(); // create set to keep track of visited vertices
 
-        MinHeap heap = new MinHeap(); //creates the heap
+        visited.add(1); //start from vertex 1
 
-        double[] keys = new double[graph.getSize()];
-        int[] ids = new int[graph.getSize()];
-
-        int i = 0;
-        for (Map.Entry<Integer, List<Edge>> entry : neighbors.entrySet()) {
-            int vertex = entry.getKey();
-            ids[i] = vertex;
-            keys[i] = Double.MAX_VALUE;
-            i++;
+        List<Edge> adjacentEdges = graph.getAdjacentEdges(1); //get all adjacent to first vertex
+        for (Edge edge : adjacentEdges) { //create heap of adjacent
+            heap.insert(edge);
         }
 
+        while (!heap.isEmpty()) {
+            Edge minEdge = heap.extractMin(); //extract min edge
 
-        heap.heap_ini(keys, ids, graph.getSize()); //inits it with keys
-//        heap.printHeap();
+            int u = minEdge.i; //current vertex
+            int v = minEdge.j; //vertex associated with edge
 
-        List<Edge> mst = new ArrayList<>(); //inits the MST
-
-        boolean[] visited = new boolean[graph.getSize()+1]; //array to track vertices that have been visited
-        heap.decrease_key(1,0); //inits the key of source vertex
-
-        //performs prims algorithm until the heap is empty
-        while(heap.heapSize() != 0)
-        {
-
-            Node minNode = heap.getNodeById(heap.min_id()); //get min element from the heap
-            heap.delete_min(); //deletes the min
-            int u = minNode.getId(); //id of current vertex
-
-            if(visited[u]) //if the vertex has already been visited, skip further processing
-            {
+            if (visited.contains(u) && visited.contains(v)) { //check if both have been visited
                 continue;
             }
 
-            visited[u] = true; //mark vertex as visited
-            double smallest = Double.MAX_VALUE;
-            int ver = 0;
-            int to = 0;
+            mstEdges.add(minEdge); //add to mst
 
-            for (Edge edge : graph.neighbors.get(u)) {
-                int v = edge.j;
-                if (!visited[v] && edge.w < heap.key(v)) {
+            int newVertex = visited.contains(u) ? v : u;
+            visited.add(newVertex); //mark the vertices in the set
 
-                    mst.add(new Edge(u, v, edge.w));
-                    heap.decrease_key(v,  edge.w);
+            adjacentEdges = graph.getAdjacentEdges(newVertex); //find adjacent for new vertex
+            for (Edge edge : adjacentEdges) {
+                if (!visited.contains(edge.j)) {
+                    heap.insert(edge); //loop through, and if edge has not been added to the heap, add it
                 }
             }
-
-
-
         }
-        return mst;
+
+        return mstEdges; //return list of edges, which is mst
     }
 
 
-
+    //method to print the mst nicely
     public void printMST(List<Edge> mst) {
         System.out.println("Minimum Spanning Tree (MST):");
-        double totalWeight = 0;
+        double totalWeight = 0; //keep track of total weight
 
         for (Edge edge : mst) {
-            System.out.println("Vertex " + edge.i + " -- Vertex " + edge.j + " : Weight = " + edge.w);
-            totalWeight += edge.w;
+            System.out.println("Vertex " + edge.i + " -- Vertex " + edge.j + " : Weight = " + edge.weight); //print current edge in mst
+            totalWeight += edge.weight;
         }
 
-        System.out.println("Total Weight of MST: " + totalWeight);
+        System.out.println("Total Weight of MST: " + totalWeight); //print total weight
     }
 
 
