@@ -11,17 +11,17 @@ public class MinHeap {
 
     //initializes a heap with the array keys of n elements indexed from 1 to n, where
     //key[i] is the key of the element whose id is i.
-    public void heap_ini(int[] keys, int n){
+    public void heap_ini(double[] keys, int[] ids, int n){
         this.heap = new Node[n+1];
         this.size = 0;
         for(int i = 0; i < n; i++){
-            insert(i+1, keys[i]);
+            insert(ids[i], keys[i]);
         }
     }
 
-    public void insert(int id, int key){
+    public void insert(int id, double key){
         size++;
-        heap[size] = new Node(id, key);
+        heap[size] = new Node(key, id);
         heapUp(size);
     }
 
@@ -69,7 +69,7 @@ public class MinHeap {
     }
 
     //returns the minimum key of the heap
-    public int min_key(){
+    public double min_key(){
         if(size > 0){
             return heap[1].getKey();
         }
@@ -87,7 +87,7 @@ public class MinHeap {
 
 
     //returns the key of the element whose id is id in the heap
-    public int key(int id){
+    public double key(int id){
         for(int i = 1; i <= size; i++) {
             if(heap[i].getId() == id){
                 return heap[i].getKey(); //retruns key if node found with given id
@@ -121,7 +121,7 @@ public class MinHeap {
 
     // sets the key of the element whose id is id to new_key if its current key
     // is greater than new_key.
-    public void decrease_key(int id, int new_key){
+    public void decrease_key(int id, double new_key){
         int i = findIndex(id);
         if(i == -1){
             throw new IllegalArgumentException("Node with given id not found.");
@@ -148,19 +148,18 @@ public class MinHeap {
 
     }
 
-    /*
-    returns the size of the heap
-     */
+   //returns size of heap
     public int heapSize()
     {
         return size;
     }
 
-    /*
-    returns the element stored in the heap by its id
-     */
-    public Element getElementByID(int id)
-    {
-        return new Element(heap[id].getId(), heap[id].getKey());
+
+    public Node getNodeById(int id){
+        int i = findIndex(id);
+        if(i == -1){
+            return null;
+        }
+        else return heap[i];
     }
 }

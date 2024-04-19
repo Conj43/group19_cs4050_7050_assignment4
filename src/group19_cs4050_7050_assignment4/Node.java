@@ -1,15 +1,15 @@
 package group19_cs4050_7050_assignment4;
 
 public class Node {
-    private int key;
+    private double key;
     private int id;
 
-    public Node(int key, int id) {
+    public Node(double key, int id) {
         this.key = key;
         this.id = id;
     }
 
-    public int getKey() {
+    public double getKey() {
         return key;
     }
 
@@ -17,7 +17,7 @@ public class Node {
         return id;
     }
 
-    public void setKey(int key) {
+    public void setKey(double key) {
         this.key = key;
     }
 }
