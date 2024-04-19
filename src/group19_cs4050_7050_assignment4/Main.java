@@ -47,7 +47,10 @@ public class Main {
         }
         else g.printGraph();
 
+        assert g != null;
+        List<Edge> list = g.primMST();
 
+       String listString = list.toString();
 
 
     }
