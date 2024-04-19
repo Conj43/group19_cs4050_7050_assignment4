@@ -147,10 +147,20 @@ public class MinHeap {
         }
 
     }
+
+    /*
+    returns the size of the heap
+     */
     public int heapSize()
     {
         return size;
     }
 
-
+    /*
+    returns the element stored in the heap by its id
+     */
+    public Element getElementByID(int id)
+    {
+        return new Element(heap[id].getId(), heap[id].getKey());
+    }
 }
