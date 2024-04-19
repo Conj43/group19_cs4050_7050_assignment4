@@ -45,5 +45,4 @@ public class Graph {
         return size;
     }
 
-
 }
